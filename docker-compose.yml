@@ -40,16 +40,26 @@ services:
       - ./server:/app
       - ./server/settings/settings.py:/app/settings/settings.py
 
-  jmoney_web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    container_name: jmoney_web
+  jmoney_web_dev:
+    image: node:18
+    container_name: jmoney_web_dev
+    working_dir: /app
     depends_on:
       - jmoney_api
     ports:
-      - "3000:80"
+      - "3001:3000"
+    volumes:
+      - ./web:/app
+      - jmoney_web_node_modules:/app/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      WDS_SOCKET_PORT: "3001"
+    command: ["sh", "-lc", "npm install && npm start"]
 
 volumes:
   jmoney_mysql:
+    driver: local
+
+  jmoney_web_node_modules:
     driver: local

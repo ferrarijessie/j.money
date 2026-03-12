@@ -387,7 +387,7 @@ class TestExpenseService:
 
     def test__get_or_create_non_existent_no_base_value(self, client, expense_factory):
         expense = expense_factory.create()
-        result = ExpenseService._get_or_create(type=expense.expense_type, year=expense.year+1, month=expense.month+1)
+        result = ExpenseService._get_or_create(expense_type=expense.expense_type, year=expense.year+1, month=expense.month+1)
 
         assert isinstance(result, Expense)
         assert result.type_id == expense.type_id
@@ -399,7 +399,7 @@ class TestExpenseService:
     def test__get_or_create_non_existent_with_base_value(self, client, expense_factory, expense_type_factory):
         expense_type = expense_type_factory.create(recurrent=True, base_value=100)
         expense = expense_factory.create(type_id=expense_type.id)
-        result = ExpenseService._get_or_create(type=expense.expense_type, year=expense.year+1, month=expense.month+1)
+        result = ExpenseService._get_or_create(expense_type=expense.expense_type, year=expense.year+1, month=expense.month+1)
 
         assert isinstance(result, Expense)
         assert result.type_id == expense.type_id
@@ -410,7 +410,7 @@ class TestExpenseService:
 
     def test__get_or_create_existent(self, client, expense_factory):
         expense = expense_factory.create(**{'paid': True})
-        result = ExpenseService._get_or_create(type=expense.expense_type, year=expense.year, month=expense.month)
+        result = ExpenseService._get_or_create(expense_type=expense.expense_type, year=expense.year, month=expense.month)
 
         assert isinstance(result, Expense)
         assert result.type_id == expense.type_id

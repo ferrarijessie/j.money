@@ -31,7 +31,7 @@ class TestIncomeTypeResource:
 
         assert result.status_code == 200
         assert len(result.get_json()) > 0
-        assert result.get_json()[0]['incomeTypeId'] == income_type.id
+        assert result.get_json()[0]['id'] == income_type.id
 
     def test_post_success(self, client, user_factory):
         user = user_factory.create()
@@ -48,7 +48,7 @@ class TestIncomeTypeResource:
         result_json = result.get_json()
 
         assert result.status_code == 201
-        assert result_json['incomeTypeId'] > 0
+        assert result_json['id'] > 0
         assert result_json['name'] == 'New Income Type'
         assert result_json['recurrent'] == False
 
@@ -74,7 +74,7 @@ class  TestIncomeTypeIdResource:
         )
 
         assert result.status_code == 200
-        assert result.get_json()['incomeTypeId'] == income_type.id
+        assert result.get_json()['id'] == income_type.id
 
     def test_put_non_existent(self, client, user_factory):
         user = user_factory.create()
@@ -107,7 +107,7 @@ class  TestIncomeTypeIdResource:
         )
 
         assert result.status_code == 200
-        assert result.get_json()['incomeTypeId'] == income_type.id
+        assert result.get_json()['id'] == income_type.id
         assert result.get_json()['name'] == 'Edited Income Type'
         assert result.get_json()['recurrent'] == True
 

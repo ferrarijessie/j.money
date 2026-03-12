@@ -235,7 +235,7 @@ class TestExpenseTypeResource:
         response_json = response.get_json()
 
         assert response.status_code == 200
-        assert response_json[0]["expenseTypeId"] == expense_type.id
+        assert response_json[0]["id"] == expense_type.id
 
     def test_post_success(self, client, user_factory):
         user = user_factory.create()
@@ -254,7 +254,7 @@ class TestExpenseTypeResource:
         response_json = response.get_json()
 
         assert response.status_code == 201
-        assert response_json["expenseTypeId"] > 0
+        assert response_json["id"] > 0
         assert response_json["name"] == "Luz"
         assert response_json["category"] == ExpenseCategoryEnum.HOUSE.value
         assert response_json["recurrent"] == True
@@ -282,7 +282,7 @@ class TestExpenseTypeIdResource:
         response_json = response.get_json()
 
         assert response.status_code == 200
-        assert response_json["expenseTypeId"] == expense_type.id
+        assert response_json["id"] == expense_type.id
 
     def test_put_non_existent(self, client, user_factory):
         user = user_factory.create()
@@ -318,7 +318,7 @@ class TestExpenseTypeIdResource:
         response_json = response.get_json()
 
         assert response.status_code == 200
-        assert response_json["expenseTypeId"] == expense_type.id
+        assert response_json["id"] == expense_type.id
         assert response_json["name"] == "New Type"
         assert response_json["category"] == ExpenseCategoryEnum.HEALTH.value
         assert response_json["recurrent"] == True

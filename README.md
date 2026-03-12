@@ -10,18 +10,18 @@ The project runs as 3 Docker services via `docker compose`:
   - Published port: `3306` (host) -> `3306` (container)
 - **`jmoney_api`**
   - Flask API (listens on port `5065` inside the Docker network)
-  - Not published to the host (Nginx proxies to it internally)
-- **`jmoney_web`**
-  - Nginx serving the web UI
-  - Published port: `3000` (host) -> `80` (container)
+  - Not published to the host (the frontend dev server proxies to it internally)
+- **`jmoney_web_dev`**
+  - React dev server (CRA)
+  - Published port: `3001` (host) -> `3000` (container)
 
 ### API routing
 
-The web container proxies API requests:
+The dev server proxies API requests:
 
-- `http://localhost:3000/api/...` -> `http://jmoney_api:5065/api/...`
+- `http://localhost:3001/api/...` -> `http://jmoney_api:5065/api/...`
 
-See `web/nginx.conf`.
+See `web/package.json` (`proxy`).
 
 ## Configuration (.env)
 
@@ -57,12 +57,40 @@ docker compose up -d --build
 
 Open:
 
-- Web UI: `http://localhost:3000`
+- Web UI: `http://localhost:3001`
 
 ## Database readiness / first-boot reliability
 
 - `jmoney_db` includes a Docker healthcheck so dependent services can wait until MySQL is responding.
 - `jmoney_api` includes startup logic to wait for the database host/port to accept connections (controlled by `DB_WAIT_TIMEOUT`).
+
+## Automated tests
+
+Tests are located under `server/tests/` and use `pytest`.
+
+### Run tests in Docker
+
+The test config uses the MySQL hostname `jmoney_db`, so running tests in the Compose network is the most reliable option:
+
+```sh
+docker compose up -d --build jmoney_db
+docker compose run --rm jmoney_api pytest -q
+```
+
+### Coverage
+
+Generate a coverage report (recommended to run inside Docker):
+
+```sh
+docker compose up -d --build jmoney_db
+docker compose run --rm jmoney_api pytest -q --cov=/app --cov-report=term-missing
+```
+
+Optionally generate an HTML report:
+
+```sh
+docker compose run --rm jmoney_api pytest -q --cov=/app --cov-report=html
+```
 
 ## Troubleshooting
 
