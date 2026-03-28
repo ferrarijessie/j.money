@@ -40,6 +40,50 @@ services:
       - ./server:/app
       - ./server/settings/settings.py:/app/settings/settings.py
 
+  jmoney_api_migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: jmoney_api_migrate
+    restart: "no"
+    depends_on:
+      jmoney_db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DB_WAIT_TIMEOUT: ${DB_WAIT_TIMEOUT}
+    volumes:
+      - ./server:/app
+      - ./server/settings/settings.py:/app/settings/settings.py
+    command: ["sh", "-lc", "python -c \"import os,socket,time,sys; host=os.getenv('DATABASE_HOST','jmoney_db'); port=int(os.getenv('DATABASE_PORT','3306')); timeout=int(os.getenv('DB_WAIT_TIMEOUT','60')); start=time.time();\n\nwhile True:\n    try:\n        s=socket.create_connection((host,port),timeout=2); s.close(); break\n    except OSError:\n        if time.time()-start>timeout: sys.exit('Timed out waiting for DB at %s:%s' % (host,port))\n        time.sleep(1)\" && flask db upgrade"]
+
+  jmoney_api_make_migrations:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: jmoney_api_make_migrations
+    depends_on:
+      jmoney_db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DB_WAIT_TIMEOUT: ${DB_WAIT_TIMEOUT}
+      MIGRATION_MESSAGE: ${MIGRATION_MESSAGE:-auto migration}
+    volumes:
+      - ./server:/app
+      - ./server/settings/settings.py:/app/settings/settings.py
+    command: ["sh", "-lc", "python -c \"import os,socket,time,sys; host=os.getenv('DATABASE_HOST','jmoney_db'); port=int(os.getenv('DATABASE_PORT','3306')); timeout=int(os.getenv('DB_WAIT_TIMEOUT','60')); start=time.time();\n\nwhile True:\n    try:\n        s=socket.create_connection((host,port),timeout=2); s.close(); break\n    except OSError:\n        if time.time()-start>timeout: sys.exit('Timed out waiting for DB at %s:%s' % (host,port))\n        time.sleep(1)\" && flask db migrate -m \"${MIGRATION_MESSAGE}\""]
+
   jmoney_web_dev:
     image: node:18
     container_name: jmoney_web_dev

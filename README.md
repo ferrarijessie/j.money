@@ -92,6 +92,24 @@ Optionally generate an HTML report:
 docker compose run --rm jmoney_api pytest -q --cov=/app --cov-report=html
 ```
 
+## Migrations
+
+### Re-running migrations
+
+If you need to apply migrations again:
+
+```sh
+docker compose run --rm jmoney_api_migrate
+```
+
+### Generating new migrations
+
+When you change your SQLAlchemy models and need to generate a new migration file:
+
+```sh
+MIGRATION_MESSAGE="describe change" docker compose run --rm jmoney_api_make_migrations
+```
+
 ## Troubleshooting
 
 ### API container restarting with a DB env error
